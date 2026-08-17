@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Vista previa
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/estilos.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <header class="header">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                📂
+            </div>
+
+            <div>
+
+                <h1>
+                    Organizador
+                </h1>
+
+                <span>
+                    Vista previa
+                </span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <main class="contenido">
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>
+                    🔍 Vista previa
+                </h2>
+
+                <p class="ruta">
+
+                    Carpeta:
+
+                    <strong>
+                        {{ ruta }}
+                    </strong>
+
+                </p>
+
+            </div>
+
+
+            {% if archivos %}
+
+                <div class="resumen">
+
+                    <div class="estadistica">
+
+                        <span>📁</span>
+
+                        <strong>
+                            {{ archivos|length }}
+                        </strong>
+
+                        <small>
+                            Archivos encontrados
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <div class="tabla-container">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Archivo
+                                </th>
+
+                                <th>
+                                    Extensión
+                                </th>
+
+                                <th>
+                                    Categoría
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for archivo in archivos %}
+
+                            <tr>
+
+                                <td>
+                                    {{ archivo.archivo }}
+                                </td>
+
+                                <td>
+                                    {{ archivo.extension }}
+                                </td>
+
+                                <td>
+
+                                    <span class="badge">
+
+                                        {{ archivo.icono }}
+
+                                        {{ archivo.categoria }}
+
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div class="acciones">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('organizar') }}"
+                    >
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+
+                            ✓ Organizar archivos
+
+                        </button>
+
+                    </form>
+
+
+                    <a
+                        href="{{ url_for('inicio') }}"
+                        class="btn btn-secondary"
+                    >
+
+                        ← Cancelar
+
+                    </a>
+
+                </div>
+
+            {% else %}
+
+                <div class="vacio">
+
+                    <div>
+                        📂
+                    </div>
+
+                    <h3>
+                        No se encontraron archivos
+                    </h3>
+
+                    <p>
+                        La carpeta seleccionada
+                        no contiene archivos.
+                    </p>
+
+                    <a
+                        href="{{ url_for('inicio') }}"
+                        class="btn btn-primary"
+                    >
+                        Volver
+                    </a>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <footer>
+
+        <p>
+            Organizador de Archivos © 2026
+        </p>
+
+    </footer>
+
+</div>
+
+</body>
+
+</html>

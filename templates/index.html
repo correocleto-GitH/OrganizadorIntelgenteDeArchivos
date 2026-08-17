@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es" class="{{ 'dark' if modo_oscuro else '' }}">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Organizador Inteligente</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="brand-icon">📂</span><div><b>Organizador Inteligente</b><small>Gestión profesional de archivos</small></div></div>
+  <nav><a href="{{ url_for('inicio') }}">Inicio</a><a href="{{ url_for('historial') }}">Historial</a>
+  <form method="post" action="{{ url_for('modo_oscuro') }}"><button class="icon-btn" title="Cambiar tema">🌙</button></form></nav>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div><span class="eyebrow">PYTHON + FLASK</span><h1>Ordena tus archivos <span>sin complicaciones.</span></h1>
+    <p>Analiza, previsualiza, clasifica, organiza y deshaz operaciones desde una interfaz moderna.</p></div>
+    <div class="hero-art">🗂️</div>
+  </section>
+
+  {% with mensajes=get_flashed_messages(with_categories=true) %}
+  {% for categoria,mensaje in mensajes %}<div class="alert {{ categoria }}">{{ mensaje }}</div>{% endfor %}
+  {% endwith %}
+
+  <section class="card">
+    <div class="section-title"><div><h2>📁 Carpeta de trabajo</h2><p>Selecciona una carpeta local de Windows.</p></div></div>
+    <div class="folder-picker">
+      <a href="{{ url_for('seleccionar_carpeta') }}" class="btn primary folder-button">
+        📁 Seleccionar carpeta
+      </a>
+      <span class="picker-help">
+        Se abrirá el selector de carpetas de Windows.
+      </span>
+    </div>
+
+    <div class="or-divider"><span>O introducir la ruta manualmente</span></div>
+
+    <form method="post" action="{{ url_for('analizar') }}" class="path-form">
+      <input name="carpeta" value="{{ ruta }}" placeholder="C:\Users\Usuario\Downloads" required>
+      <button class="btn secondary">🔍 Analizar ruta</button>
+    </form>
+
+    {% if ruta %}<div class="path">📍 <strong>Carpeta seleccionada:</strong> {{ ruta }}</div>{% endif %}
+  </section>
+
+  {% if ruta %}
+  <section class="stats">
+    <div class="stat"><b>{{ archivos|length }}</b><span>Total archivos</span></div>
+    {% for cat,valor in resumen.items() if valor %}
+    <div class="stat"><b>{{ valor }}</b><span>{{ cat }}</span></div>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <div class="section-title">
+      <div><h2>🔎 Vista previa</h2><p>Filtra antes de ejecutar cualquier cambio.</p></div>
+      <input id="buscador" class="search" placeholder="Buscar archivo...">
+    </div>
+    <div class="filters">
+      <button class="filter active" data-cat="Todas">Todas</button>
+      {% for cat in resumen if resumen[cat] %}<button class="filter" data-cat="{{ cat }}">{{ cat }}</button>{% endfor %}
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>Archivo</th><th>Extensión</th><th>Categoría</th></tr></thead>
+    <tbody id="tabla">
+    {% for a in archivos %}<tr data-cat="{{ a.categoria }}"><td>{{ a.archivo }}</td><td>{{ a.extension or '—' }}</td><td><span class="badge">{{ a.icono }} {{ a.categoria }}</span></td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+
+  <section class="actions card">
+    <h2>⚡ Acciones</h2><p>Elige cómo deseas procesar los archivos.</p>
+    <div class="action-grid">
+      <form method="post" action="{{ url_for('organizar') }}"><input type="hidden" name="modo" value="simular"><button class="btn warning full">👁️ Simular organización</button></form>
+      <form method="post" action="{{ url_for('organizar') }}" onsubmit="return confirm('¿Deseas mover los archivos? Esta acción modificará la carpeta seleccionada.')"><input type="hidden" name="modo" value="ejecutar"><button class="btn success full">✓ Organizar archivos</button></form>
+      <form method="post" action="{{ url_for('deshacer') }}"><button class="btn secondary full">↶ Deshacer última operación</button></form>
+    </div>
+  </section>
+  {% endif %}
+</main>
+<footer>Organizador Inteligente · Flask · Python · SQLite</footer>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body></html>

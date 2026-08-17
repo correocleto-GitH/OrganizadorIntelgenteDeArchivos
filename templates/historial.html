@@ -1,0 +1,6 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Historial</title><link rel="stylesheet" href="{{ url_for('static',filename='css/estilos.css') }}"></head>
+<body><header class="topbar"><div class="brand"><span class="brand-icon">📂</span><div><b>Organizador Inteligente</b><small>Historial de operaciones</small></div></div><nav><a href="{{ url_for('inicio') }}">← Inicio</a></nav></header>
+<main class="container"><section class="card"><div class="section-title"><div><h1>📋 Historial</h1><p>Últimas operaciones registradas.</p></div></div>
+<div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Ruta</th><th>Detalle</th></tr></thead><tbody>
+{% for h in historial %}<tr><td>{{ h.fecha }}</td><td><span class="badge">{{ h.tipo }}</span></td><td>{{ h.ruta }}</td><td>{{ h.detalle }}</td></tr>{% else %}<tr><td colspan="4">No hay registros.</td></tr>{% endfor %}
+</tbody></table></div></section></main><footer>Organizador Inteligente</footer></body></html>
