@@ -1,27 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
-from organizador.organizador import analizar_carpeta, organizar_archivos, deshacer_operaciones, obtener_resumen, buscar_archivos
-from organizador.db import init_db, guardar_operaciones, obtener_historial, registrar_log
-import os, json
+﻿import csv
+import io
+import json
+import os
+
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, Response, stream_with_context
+from flask_wtf.csrf import CSRFProtect
+
+from organizador.organizador import analizar_carpeta, organizar_archivos, deshacer_operaciones, obtener_resumen, buscar_archivos, ruta_permitida
+from organizador.db import init_db, guardar_operaciones, obtener_historial, obtener_operaciones_por_lote, registrar_log
 
 app = Flask(__name__)
-app.secret_key = "cambiar-esta-clave-en-produccion"
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
+csrf = CSRFProtect(app)
 
-CARPETAS_PROTEGIDAS = [
-    os.environ.get("SystemRoot", r"C:\Windows").lower(),
-    os.environ.get("ProgramFiles", r"C:\Program Files").lower(),
-    os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)").lower()
-]
 
 @app.context_processor
 def contexto():
     return {"modo_oscuro": session.get("modo_oscuro", False)}
 
-def ruta_permitida(ruta):
-    try:
-        ruta = os.path.abspath(ruta).lower()
-        return not any(ruta == p or ruta.startswith(p + os.sep) for p in CARPETAS_PROTEGIDAS)
-    except Exception:
-        return False
+def _guardar_en_sesion(ops: list, lote_id: str) -> None:
+    if len(ops) > 50:
+        session["ultima_operacion"] = {"lote_id": lote_id, "usar_db": True}
+    else:
+        session["ultima_operacion"] = ops
 
 @app.route("/")
 def inicio():
@@ -33,7 +34,6 @@ def inicio():
 
 @app.route("/seleccionar-carpeta")
 def seleccionar_carpeta():
-    """Abre el selector nativo de carpetas de Windows."""
     try:
         import tkinter as tk
         from tkinter import filedialog
@@ -42,10 +42,7 @@ def seleccionar_carpeta():
         ventana.withdraw()
         ventana.attributes("-topmost", True)
 
-        carpeta = filedialog.askdirectory(
-            title="Seleccionar una carpeta"
-        )
-
+        carpeta = filedialog.askdirectory(title="Seleccionar una carpeta")
         ventana.destroy()
 
         if not carpeta:
@@ -78,8 +75,10 @@ def analizar():
     if not ruta_permitida(ruta):
         flash("Por seguridad, no se permite trabajar directamente sobre carpetas del sistema.", "error")
         return redirect(url_for("inicio"))
-    session["carpeta"] = os.path.abspath(ruta)
-    registrar_log("ANALISIS", ruta, f"{len(analizar_carpeta(ruta))} archivos encontrados")
+    ruta_abs = os.path.abspath(ruta)
+    session["carpeta"] = ruta_abs
+    archivos = analizar_carpeta(ruta_abs)
+    registrar_log("ANALISIS", ruta_abs, f"{len(archivos)} archivos encontrados")
     return redirect(url_for("inicio"))
 
 @app.route("/organizar", methods=["POST"])
@@ -89,25 +88,97 @@ def organizar():
         flash("Seleccione primero una carpeta válida.", "error")
         return redirect(url_for("inicio"))
     modo = request.form.get("modo", "ejecutar")
-    operaciones = organizar_archivos(ruta, simulacion=(modo == "simular"))
+    incluir_subcarpetas = request.form.get("incluir_subcarpetas") == "on"
+    operaciones = organizar_archivos(ruta, simulacion=(modo == "simular"), incluir_subcarpetas=incluir_subcarpetas)
     if modo == "simular":
         session["simulacion"] = operaciones
         registrar_log("SIMULACION", ruta, f"{len(operaciones)} archivos serían organizados")
         flash(f"Simulación terminada: {len(operaciones)} archivos serían organizados.", "info")
     else:
-        guardar_operaciones(operaciones)
-        session["ultima_operacion"] = operaciones
+        lote_id = guardar_operaciones(operaciones)
         registrar_log("ORGANIZACION", ruta, f"{len(operaciones)} archivos organizados")
+        _guardar_en_sesion(operaciones, lote_id)
         flash(f"Se organizaron {len(operaciones)} archivos correctamente.", "success")
     return redirect(url_for("inicio"))
 
+@app.route("/organizar/progreso")
+@csrf.exempt
+def organizar_progreso():
+    ruta = session.get("carpeta")
+    if not ruta or not os.path.isdir(ruta) or not ruta_permitida(ruta):
+        def _error_gen():
+            yield f"data: {json.dumps({'error': 'Carpeta no válida o no seleccionada.'})}\n\n"
+        return Response(stream_with_context(_error_gen()), mimetype="text/event-stream")
+
+    modo = request.args.get("modo", "ejecutar")
+    incluir_subcarpetas = request.args.get("incluir_subcarpetas", "0") == "1"
+    simulacion = modo == "simular"
+
+    def _generar():
+        import queue
+        import threading
+
+        cola = queue.Queue()
+        excepcion_ref = [None]
+
+        def _callback(actual, total):
+            cola.put(json.dumps({"actual": actual, "total": total}))
+
+        def _worker():
+            try:
+                ops = organizar_archivos(
+                    ruta,
+                    simulacion=simulacion,
+                    incluir_subcarpetas=incluir_subcarpetas,
+                    callback_progreso=_callback
+                )
+                cola.put(("__completado__", ops))
+            except Exception as e:
+                excepcion_ref[0] = e
+                cola.put("__error__")
+
+        hilo = threading.Thread(target=_worker, daemon=True)
+        hilo.start()
+
+        while True:
+            item = cola.get()
+            if item == "__error__":
+                yield f"data: {json.dumps({'error': str(excepcion_ref[0])})}\n\n"
+                break
+            if isinstance(item, tuple) and item[0] == "__completado__":
+                ops = item[1]
+                if not simulacion:
+                    lote_id = guardar_operaciones(ops)
+                    registrar_log("ORGANIZACION", ruta, f"{len(ops)} archivos organizados")
+                    _guardar_en_sesion(ops, lote_id)
+                else:
+                    session["simulacion"] = ops
+                    registrar_log("SIMULACION", ruta, f"{len(ops)} archivos serían organizados")
+                yield f"data: {json.dumps({'completado': True, 'total': len(ops), 'simulacion': simulacion})}\n\n"
+                break
+            yield f"data: {item}\n\n"
+
+    cabeceras = {
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+    }
+    return Response(stream_with_context(_generar()), mimetype="text/event-stream", headers=cabeceras)
+
+
 @app.route("/deshacer", methods=["POST"])
 def deshacer():
-    operaciones = session.get("ultima_operacion", [])
-    restaurados = deshacer_operaciones(operaciones)
+    entrada = session.get("ultima_operacion", [])
+    if isinstance(entrada, dict) and entrada.get("usar_db"):
+        operaciones = obtener_operaciones_por_lote(entrada["lote_id"])
+    else:
+        operaciones = entrada
+    restaurados, errores = deshacer_operaciones(operaciones)
     registrar_log("DESHACER", session.get("carpeta", ""), f"{len(restaurados)} archivos restaurados")
     session.pop("ultima_operacion", None)
     flash(f"Se restauraron {len(restaurados)} archivos.", "success")
+    if errores:
+        for e in errores:
+            flash(f"No se pudo restaurar '{e['archivo']}': {e['error']}", "error")
     return redirect(url_for("inicio"))
 
 @app.route("/buscar")
@@ -118,9 +189,28 @@ def buscar():
     archivos = buscar_archivos(ruta, termino, categoria)
     return jsonify({"archivos": archivos, "total": len(archivos)})
 
+@app.route("/historial/exportar")
+def exportar_historial():
+    registros = obtener_historial()
+    salida = io.StringIO()
+    escritor = csv.writer(salida)
+    escritor.writerow(["id", "fecha", "tipo", "ruta", "detalle"])
+    for fila in registros:
+        escritor.writerow([fila["id"], fila["fecha"], fila["tipo"], fila["ruta"], fila["detalle"]])
+    return Response(
+        salida.getvalue(),
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="historial.csv"'}
+    )
+
 @app.route("/historial")
 def historial():
     return render_template("historial.html", historial=obtener_historial())
+
+@app.route("/historial/<int:lote_id>")
+def detalle_operacion(lote_id):
+    operaciones = obtener_operaciones_por_lote(lote_id)
+    return render_template("detalle_operacion.html", operaciones=operaciones, lote_id=lote_id)
 
 @app.route("/modo-oscuro", methods=["POST"])
 def modo_oscuro():

@@ -1,0 +1,172 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "14. Conectar el endpoint `/buscar` al frontend — actualmente el filtrado se hace solo en cliente; implementar opción de búsqueda server-side para carpetas con muchos archivos": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075541904
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075550643
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075663161
+      }
+    ],
+    "15. Añadir protección CSRF a los formularios POST (`/organizar`, `/deshacer`, `/modo-oscuro`)": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075542265
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075669556
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075846363
+      }
+    ],
+    "16. Limitar el volumen de `session[\"ultima_operacion\"]` para evitar superar el límite de 4KB de la cookie": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075542577
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075885821
+      }
+    ],
+    "17. Soporte para recursividad opcional — organizar también subcarpetas": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075542812
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075888973
+      },
+      {
+        "executionId": "7a6a5887-57bf-4fd3-a85b-c7c0dc14c3ab",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787077701514
+      }
+    ],
+    "18. Vista de detalle de operaciones en historial": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075542995
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075889698
+      },
+      {
+        "executionId": "7a6a5887-57bf-4fd3-a85b-c7c0dc14c3ab",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787077706557
+      }
+    ],
+    "19. Exportar historial a CSV": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075543113
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075890407
+      },
+      {
+        "executionId": "7a6a5887-57bf-4fd3-a85b-c7c0dc14c3ab",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787077711076
+      }
+    ],
+    "20. Indicador de progreso para carpetas con muchos archivos": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075543244
+      },
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075891175
+      }
+    ],
+    "21. Añadir type hints completos a todas las funciones de `organizador.py` y `db.py`": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075543415
+      },
+      {
+        "executionId": "93e261d7-4a35-4861-affb-daa16a1de381",
+        "chatSessionId": "sess_98273f67-2718-4314-acf0-c9b9046f6141",
+        "timestamp": 1787077533336
+      },
+      {
+        "executionId": "7a6a5887-57bf-4fd3-a85b-c7c0dc14c3ab",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787077715801
+      }
+    ],
+    "22. Añadir docstrings en español a todas las funciones públicas siguiendo la convención del proyecto": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075543578
+      },
+      {
+        "executionId": "93e261d7-4a35-4861-affb-daa16a1de381",
+        "chatSessionId": "sess_98273f67-2718-4314-acf0-c9b9046f6141",
+        "timestamp": 1787077534078
+      },
+      {
+        "executionId": "7a6a5887-57bf-4fd3-a85b-c7c0dc14c3ab",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787077719431
+      }
+    ],
+    "23. Crear suite de tests básica con `pytest`": [
+      {
+        "executionId": "c02fe77e-47eb-4985-92c4-ec66dd069f3a",
+        "chatSessionId": "sess_24e85bbc-ff40-42dc-a8b3-d084c687f512",
+        "timestamp": 1787075543716
+      },
+      {
+        "executionId": "93e261d7-4a35-4861-affb-daa16a1de381",
+        "chatSessionId": "sess_98273f67-2718-4314-acf0-c9b9046f6141",
+        "timestamp": 1787077535175
+      }
+    ],
+    "24. Crear suite de tests básica con `pytest` *": [
+      {
+        "executionId": "20858a52-c7a5-4e65-85bb-8e64ed589fe2",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787080580479
+      },
+      {
+        "executionId": "20858a52-c7a5-4e65-85bb-8e64ed589fe2",
+        "chatSessionId": "sess_5e8229fa-9de3-42c7-9eab-181e7a520a99",
+        "timestamp": 1787080831777
+      }
+    ]
+  }
+}

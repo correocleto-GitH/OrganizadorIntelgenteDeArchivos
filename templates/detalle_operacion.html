@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es" class="{{ 'dark' if modo_oscuro else '' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detalle de operación — Organizador Inteligente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-icon">📂</span>
+    <div>
+      <b>Organizador Inteligente</b>
+      <small>Detalle de operación #{{ lote_id }}</small>
+    </div>
+  </div>
+  <nav>
+    <a href="{{ url_for('historial') }}">← Historial</a>
+    <form method="post" action="{{ url_for('modo_oscuro') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="icon-btn" title="Cambiar tema">🌙</button>
+    </form>
+  </nav>
+</header>
+
+<main class="container">
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="alert {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <section class="card">
+    <div class="section-title">
+      <div>
+        <h1>📄 Detalle de organización</h1>
+        <p>Archivos movidos en la operación #{{ lote_id }}.</p>
+      </div>
+      <a href="{{ url_for('historial') }}" class="btn secondary">← Volver al historial</a>
+    </div>
+
+    {% if operaciones %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Archivo</th>
+            <th>Categoría</th>
+            <th>Origen</th>
+            <th>Destino</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for op in operaciones %}
+          <tr>
+            <td>{{ op.archivo }}</td>
+            <td><span class="badge">{{ op.categoria }}</span></td>
+            <td>{{ op.origen }}</td>
+            <td>{{ op.destino }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p style="color: var(--color-muted); font-size: 13px; margin-top: 12px;">
+      {{ operaciones | length }} archivo{{ 's' if operaciones | length != 1 else '' }} movido{{ 's' if operaciones | length != 1 else '' }}.
+    </p>
+    {% else %}
+    <div class="alert info">No se encontraron operaciones para esta entrada del historial.</div>
+    {% endif %}
+
+  </section>
+</main>
+
+<footer>Organizador Inteligente · Flask · Python · SQLite</footer>
+
+</body>
+</html>

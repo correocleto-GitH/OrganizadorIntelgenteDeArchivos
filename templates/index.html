@@ -9,7 +9,7 @@
 <header class="topbar">
   <div class="brand"><span class="brand-icon">📂</span><div><b>Organizador Inteligente</b><small>Gestión profesional de archivos</small></div></div>
   <nav><a href="{{ url_for('inicio') }}">Inicio</a><a href="{{ url_for('historial') }}">Historial</a>
-  <form method="post" action="{{ url_for('modo_oscuro') }}"><button class="icon-btn" title="Cambiar tema">🌙</button></form></nav>
+  <form method="post" action="{{ url_for('modo_oscuro') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="icon-btn" title="Cambiar tema">🌙</button></form></nav>
 </header>
 
 <main class="container">
@@ -37,6 +37,7 @@
     <div class="or-divider"><span>O introducir la ruta manualmente</span></div>
 
     <form method="post" action="{{ url_for('analizar') }}" class="path-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input name="carpeta" value="{{ ruta }}" placeholder="C:\Users\Usuario\Downloads" required>
       <button class="btn secondary">🔍 Analizar ruta</button>
     </form>
@@ -69,10 +70,25 @@
 
   <section class="actions card">
     <h2>⚡ Acciones</h2><p>Elige cómo deseas procesar los archivos.</p>
+    <div class="subcarpetas-opcion">
+      <label class="check-label">
+        <input type="checkbox" id="incluir_subcarpetas" name="incluir_subcarpetas">
+        📂 Incluir subcarpetas
+      </label>
+      <small class="subcarpetas-help">Organiza también los archivos dentro de las subcarpetas.</small>
+    </div>
     <div class="action-grid">
-      <form method="post" action="{{ url_for('organizar') }}"><input type="hidden" name="modo" value="simular"><button class="btn warning full">👁️ Simular organización</button></form>
-      <form method="post" action="{{ url_for('organizar') }}" onsubmit="return confirm('¿Deseas mover los archivos? Esta acción modificará la carpeta seleccionada.')"><input type="hidden" name="modo" value="ejecutar"><button class="btn success full">✓ Organizar archivos</button></form>
-      <form method="post" action="{{ url_for('deshacer') }}"><button class="btn secondary full">↶ Deshacer última operación</button></form>
+      <form method="post" action="{{ url_for('organizar') }}" id="form-simular"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="modo" value="simular"><input type="hidden" name="incluir_subcarpetas" id="sub-simular" value=""><button class="btn warning full">👁️ Simular organización</button></form>
+      <form method="post" action="{{ url_for('organizar') }}" id="form-organizar" onsubmit="return interceptarOrganizar(event)"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="modo" value="ejecutar"><input type="hidden" name="incluir_subcarpetas" id="sub-organizar" value=""><button id="btn-organizar" class="btn success full">✓ Organizar archivos</button></form>
+      <form method="post" action="{{ url_for('deshacer') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn secondary full">↶ Deshacer última operación</button></form>
+    </div>
+
+    <div id="progreso-contenedor" hidden>
+      <div class="progreso-label">
+        <span id="progreso-texto">Organizando archivos…</span>
+        <span id="progreso-contador"></span>
+      </div>
+      <progress id="barra-progreso" max="100" value="0"></progress>
     </div>
   </section>
   {% endif %}

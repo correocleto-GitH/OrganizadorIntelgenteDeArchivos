@@ -1,235 +1,99 @@
-<!DOCTYPE html>
-
-<html lang="es">
-
+<!doctype html>
+<html lang="es" class="{{ 'dark' if modo_oscuro else '' }}">
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        Vista previa
-    </title>
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/estilos.css') }}"
-    >
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vista previa — Organizador Inteligente</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
-
 <body>
 
-<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-icon">📂</span>
+    <div>
+      <b>Organizador Inteligente</b>
+      <small>Vista previa</small>
+    </div>
+  </div>
+  <nav>
+    <a href="{{ url_for('inicio') }}">← Inicio</a>
+    <a href="{{ url_for('historial') }}">Historial</a>
+  </nav>
+</header>
 
-    <header class="header">
+<main class="container">
 
-        <div class="logo">
+  <section class="card">
+    <div class="section-title">
+      <div>
+        <h2>🔍 Vista previa</h2>
+        <p>Carpeta: <strong>{{ ruta }}</strong></p>
+      </div>
+    </div>
 
-            <div class="logo-icon">
-                📂
-            </div>
+    {% if archivos %}
 
-            <div>
-
-                <h1>
-                    Organizador
-                </h1>
-
-                <span>
-                    Vista previa
-                </span>
-
-            </div>
-
+      <div class="stats">
+        <div class="stat">
+          <b>{{ archivos|length }}</b>
+          <span>Archivos encontrados</span>
         </div>
-
-    </header>
-
-
-    <main class="contenido">
-
-        <section class="card">
-
-            <div class="card-header">
-
-                <h2>
-                    🔍 Vista previa
-                </h2>
-
-                <p class="ruta">
-
-                    Carpeta:
-
-                    <strong>
-                        {{ ruta }}
-                    </strong>
-
-                </p>
-
-            </div>
-
-
-            {% if archivos %}
-
-                <div class="resumen">
-
-                    <div class="estadistica">
-
-                        <span>📁</span>
-
-                        <strong>
-                            {{ archivos|length }}
-                        </strong>
-
-                        <small>
-                            Archivos encontrados
-                        </small>
-
-                    </div>
-
-                </div>
-
-
-                <div class="tabla-container">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Archivo
-                                </th>
-
-                                <th>
-                                    Extensión
-                                </th>
-
-                                <th>
-                                    Categoría
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-                            {% for archivo in archivos %}
-
-                            <tr>
-
-                                <td>
-                                    {{ archivo.archivo }}
-                                </td>
-
-                                <td>
-                                    {{ archivo.extension }}
-                                </td>
-
-                                <td>
-
-                                    <span class="badge">
-
-                                        {{ archivo.icono }}
-
-                                        {{ archivo.categoria }}
-
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-
-                <div class="acciones">
-
-                    <form
-                        method="POST"
-                        action="{{ url_for('organizar') }}"
-                    >
-
-                        <button
-                            type="submit"
-                            class="btn btn-success"
-                        >
-
-                            ✓ Organizar archivos
-
-                        </button>
-
-                    </form>
-
-
-                    <a
-                        href="{{ url_for('inicio') }}"
-                        class="btn btn-secondary"
-                    >
-
-                        ← Cancelar
-
-                    </a>
-
-                </div>
-
-            {% else %}
-
-                <div class="vacio">
-
-                    <div>
-                        📂
-                    </div>
-
-                    <h3>
-                        No se encontraron archivos
-                    </h3>
-
-                    <p>
-                        La carpeta seleccionada
-                        no contiene archivos.
-                    </p>
-
-                    <a
-                        href="{{ url_for('inicio') }}"
-                        class="btn btn-primary"
-                    >
-                        Volver
-                    </a>
-
-                </div>
-
-            {% endif %}
-
-        </section>
-
-    </main>
-
-
-    <footer>
-
-        <p>
-            Organizador de Archivos © 2026
-        </p>
-
-    </footer>
-
-</div>
+        {% for cat, valor in resumen.items() if valor %}
+        <div class="stat">
+          <b>{{ valor }}</b>
+          <span>{{ cat }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Archivo</th>
+              <th>Extensión</th>
+              <th>Categoría</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for archivo in archivos %}
+            <tr>
+              <td>{{ archivo.archivo }}</td>
+              <td>{{ archivo.extension or '—' }}</td>
+              <td><span class="badge">{{ archivo.icono }} {{ archivo.categoria }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="action-grid" style="margin-top:20px">
+        <form method="POST" action="{{ url_for('organizar') }}"
+              onsubmit="return confirm('¿Deseas mover los archivos? Esta acción modificará la carpeta seleccionada.')">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn success full">✓ Organizar archivos</button>
+        </form>
+        <a href="{{ url_for('inicio') }}" class="btn secondary full" style="display:flex;align-items:center;justify-content:center">
+          ← Cancelar
+        </a>
+      </div>
+
+    {% else %}
+
+      <div style="text-align:center;padding:60px 20px">
+        <div style="font-size:60px">📂</div>
+        <h3>No se encontraron archivos</h3>
+        <p style="color:var(--color-muted)">La carpeta seleccionada no contiene archivos.</p>
+        <a href="{{ url_for('inicio') }}" class="btn primary">Volver</a>
+      </div>
+
+    {% endif %}
+  </section>
+
+</main>
+
+<footer>Organizador Inteligente · Flask · Python · SQLite</footer>
 
 </body>
-
 </html>
