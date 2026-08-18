@@ -1,1 +1,0 @@
-import sys; f=open(sys.argv[1],encoding="utf-8"); c=f.read(); f.close(); c2=c.replace("import csv\nimport io\nimport os","import csv\nimport io\nimport json\nimport os"); open(sys.argv[1],"w",encoding="utf-8").write(c2); print("patched" if c2!=c else "no change")
