@@ -24,7 +24,7 @@ CATEGORIAS: dict[str, list[str]] = {
     "Imagenes":    [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".svg", ".tiff", ".ico"],
     "Videos":      [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".mpeg"],
     "Audio":       [".mp3", ".wav", ".flac", ".aac", ".ogg", ".wma", ".m4a"],
-    "Comprimidos": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2"],
+    "Comprimidos": [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".jar", ".tar"],
     "Programas":   [".exe", ".msi", ".bat", ".cmd", ".ps1"]
 }
 ICONOS: dict[str, str] = {
